@@ -5,8 +5,8 @@ import java.net.*;
 public class TCPServer {
   public static void main(String argv[]) throws Exception
   {
-    String clientSentence;
-    String capitalizedSentence;
+    String clientFile;
+    String confirmTransfer;
     Socket connectionSocket;
     BufferedReader inFromClient;
     DataOutputStream outToClient;
@@ -24,12 +24,12 @@ public class TCPServer {
     while(true){
         i++;
         
-        clientSentence = inFromClient.readLine();
-        if(clientSentence == null) break;
+        clientFile = inFromClient.readLine();
+        if(clientFile == null) break;
         
-        System.out.println("I have received: "+ clientSentence + "   "+ i + "th times");
-        capitalizedSentence = clientSentence.toUpperCase() + '\n';
-        outToClient.writeBytes(capitalizedSentence);
+        System.out.println("I have received: "+ clientFile + "   "+ i + "th times");
+        confirmTransfer = "I have received file";
+        outToClient.writeBytes(confirmTransfer);
     }
     System.out.println("I am done now");
     welcomeSocket.close();
