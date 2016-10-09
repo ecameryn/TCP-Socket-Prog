@@ -9,40 +9,40 @@ import java.io.OutputStream;
 public class TCPClient {
   public static void main(String argv[]) throws Exception
   {
+      //Output from server, File/Content and Scanner variables
+      String serverResponse;
       String contentFromFile;
-      String serverConfirm;
+      Scanner scan;
       File fileToSend = new File("testerFile.txt");
-      Scanner scan = new Scanner(fileToSend);
-      scan.useDelimiter("\\Z");  
-      contentFromFile = scan.next();
       
-      
+      //Socket and Output/Input variables
       Socket clientSocket = new Socket("192.168.1.159", 6789);
       DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
       BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
       
-      int numTimeSent = 0;
-       
+      //Count times file is sent
+      int numTimeSent = 0; 
+      
+     //send file 100 times
       while(numTimeSent < 100)
       {
-         // System.out.println("Client whileLoop begin");
           numTimeSent++;
           
-          System.out.println("Sending file "+ numTimeSent +" times");
-          outToServer.writeBytes(contentFromFile + '\n');
-          
-          fileToSend = new File("testerFile.txt");
+          //Reset Scanner each loop and get File content
           scan = new Scanner(fileToSend);
           scan.useDelimiter("\\Z");  
           contentFromFile = scan.next();
+          scan.close();
           
-          serverConfirm = inFromServer.readLine();
-          System.out.println("From server : " + serverConfirm + "\n"); 
+          //Send file OUT of Client Socket and INTO Server Socket
+          System.out.println("Sending file "+ numTimeSent +" times");
+          outToServer.writeBytes(contentFromFile + '\n');
           
-          
+          //Response come INTO Client Socket OUT of Server Socket
+          serverResponse = inFromServer.readLine();
+          System.out.println("From server : " + serverResponse + "\n");  
         }
-      
-      scan.close();
+     
       System.out.println("I am done now!");
       clientSocket.close();
    }

@@ -6,7 +6,7 @@ public class TCPServer {
   public static void main(String argv[]) throws Exception
   {
     String clientFile;
-    String confirmTransfer;
+    String confirmTransferMsg;
     Socket connectionSocket;
     BufferedReader inFromClient;
     DataOutputStream outToClient;
@@ -18,21 +18,21 @@ public class TCPServer {
     inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
     outToClient = new DataOutputStream(connectionSocket.getOutputStream());
     
-    int i=0;
+    int numTimeRecv = 0;
     System.out.println("I am starting now...");
     
-    while(true){
+    while(true)
+    {
+        numTimeRecv++;
         
-        //System.out.println("Server whileLoop begin");
-        i++;
-        
+        //Get the File that is sent OUT of Client Socket and INTO Server Socket
         clientFile = inFromClient.readLine();
         if(clientFile == null) break;
+       
+        System.out.println("I have received client file ("+ numTimeRecv + " times)");
         
-        confirmTransfer = "I have received file";
-        System.out.println("I have received: "+ clientFile + "  ("+ i + " times)");
-        
-        outToClient.writeBytes(confirmTransfer + "\n");
+        confirmTransferMsg = "I have received file "+ numTimeRecv + " times";
+        outToClient.writeBytes(confirmTransferMsg + "\n");
     }
     System.out.println("I am done now");
     welcomeSocket.close();
