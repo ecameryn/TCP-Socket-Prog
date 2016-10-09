@@ -11,6 +11,11 @@ public class TCPClient {
   {
       String contentFromFile;
       String serverConfirm;
+      File fileToSend = new File("testerFile.txt");
+      Scanner scan = new Scanner(fileToSend);
+      scan.useDelimiter("\\Z");  
+      contentFromFile = scan.next();
+      
       
       Socket clientSocket = new Socket("192.168.1.159", 6789);
       DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
@@ -18,25 +23,26 @@ public class TCPClient {
       
       int numTimeSent = 0;
        
-      while(numTimeSent <= 5)
+      while(numTimeSent < 100)
       {
+         // System.out.println("Client whileLoop begin");
           numTimeSent++;
           
-          File fileToSend = new File("testerFile.txt");
-          Scanner scan = new Scanner(fileToSend);
+          System.out.println("Sending file "+ numTimeSent +" times");
+          outToServer.writeBytes(contentFromFile + '\n');
+          
+          fileToSend = new File("testerFile.txt");
+          scan = new Scanner(fileToSend);
           scan.useDelimiter("\\Z");  
           contentFromFile = scan.next();
           
-          System.out.println("This is the infor sent: "+contentFromFile);
-          outToServer.writeBytes(contentFromFile + '\n');
-         
           serverConfirm = inFromServer.readLine();
+          System.out.println("From server : " + serverConfirm + "\n"); 
           
-          System.out.println("From server :" + serverConfirm); 
           
-          scan.close();
         }
       
+      scan.close();
       System.out.println("I am done now!");
       clientSocket.close();
    }

@@ -22,14 +22,17 @@ public class TCPServer {
     System.out.println("I am starting now...");
     
     while(true){
+        
+        //System.out.println("Server whileLoop begin");
         i++;
         
         clientFile = inFromClient.readLine();
         if(clientFile == null) break;
         
-        System.out.println("I have received: "+ clientFile + "   "+ i + "th times");
         confirmTransfer = "I have received file";
-        outToClient.writeBytes(confirmTransfer);
+        System.out.println("I have received: "+ clientFile + "  ("+ i + " times)");
+        
+        outToClient.writeBytes(confirmTransfer + "\n");
     }
     System.out.println("I am done now");
     welcomeSocket.close();
