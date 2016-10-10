@@ -9,10 +9,10 @@ import java.io.OutputStream;
 public class TCPClient {
   public static void main(String argv[]) throws Exception
   {
-      //Output from server, File/Content and Scanner variables
+      //Output from server, File/Content and FileInputStr variables
       String serverResponse;
-      String contentFromFile = null;
-      Scanner scan;
+      String contentFromFile;
+      //Scanner scan;
       File fileToSend = new File("1kbfile.txt");
       
       FileInputStream fis = new FileInputStream(fileToSend);
@@ -21,7 +21,7 @@ public class TCPClient {
       fis.close();
       
       //Socket and Output/Input variables
-      Socket clientSocket = new Socket("192.168.1.159", 6789);
+      Socket clientSocket = new Socket("192.168.43.227", 3456);
       DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
       BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
       
@@ -41,11 +41,21 @@ public class TCPClient {
           
           contentFromFile = new String(fileContent, "UTF-8");
           
+          if(numTimeSent == 1)
+          {
+            int length = fileContent.length;
+            String fileLength = String.valueOf(length);
+            outToServer.writeBytes(fileLength + '\n');
+          }
+          
+          
           //Send file OUT of Client Socket and INTO Server Socket
           System.out.println("Sending file "+ numTimeSent +" times");
-          outToServer.writeBytes(contentFromFile + '\n');
           
-          //Response come INTO Client Socket OUT of Server Socket
+          
+          outToServer.writeBytes(contentFromFile);
+          
+          //Response comes INTO Client Socket OUT of Server Socket
           serverResponse = inFromServer.readLine();
           System.out.println("From server : " + serverResponse + "\n");  
         }
