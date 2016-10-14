@@ -9,11 +9,10 @@ import java.io.OutputStream;
 public class TCPClient {
   public static void main(String argv[]) throws Exception
   {
-      //Output from server, File/Content and FileInputStr variables
+      //Input from server, File/Content and FileInputStr variables
       String serverResponse;
       String contentFromFile;
-      //Scanner scan;
-      File fileToSend = new File("1kbfile.txt");
+      File fileToSend = new File("small.txt");
       
       FileInputStream fis = new FileInputStream(fileToSend);
       byte[] fileContent = new byte[(int) fileToSend.length()];
@@ -21,24 +20,17 @@ public class TCPClient {
       fis.close();
       
       //Socket and Output/Input variables
-      Socket clientSocket = new Socket("192.168.43.227", 3456);
+      Socket clientSocket = new Socket("192.168.1.159", 9876);
       DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
       BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
       
-      //Count times file is sent
+      //holds count of times file is sent
       int numTimeSent = 0; 
       
      //send file 100 times
       while(numTimeSent < 100)
       {
           numTimeSent++;
-          
-          /*//Reset Scanner each loop and get File content
-          scan = new Scanner(fileToSend);
-          scan.useDelimiter("\\Z");  
-          contentFromFile = scan.next();
-          scan.close();*/
-          
           contentFromFile = new String(fileContent, "UTF-8");
           
           if(numTimeSent == 1)
@@ -48,11 +40,8 @@ public class TCPClient {
             outToServer.writeBytes(fileLength + '\n');
           }
           
-          
           //Send file OUT of Client Socket and INTO Server Socket
           System.out.println("Sending file "+ numTimeSent +" times");
-          
-          
           outToServer.writeBytes(contentFromFile);
           
           //Response comes INTO Client Socket OUT of Server Socket
@@ -61,7 +50,6 @@ public class TCPClient {
         }
      
       System.out.println("I am done now!");
-      //System.out.println(contentFromFile);
       clientSocket.close();
    }
 }

@@ -1,6 +1,11 @@
 import java.io.*;
 import java.net.*;
 import java.*;
+import java.nio.file.Files;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 //import org.apache.commons.io.FileUtils;
 
 public class TCPServer {
@@ -14,34 +19,36 @@ public class TCPServer {
     int countToLength = 0;
     int sizeOfLine = 0;
     int newFileNum = 1;
-    //String line = null;
-    //StringBuffer stringBuffer = new StringBuffer();
+    int correctTransfer = 0;
+    int errorTransfer = 0;
+    int numTimeRecv = 0;
+    String length;
+    int fileLength = 0;
+    int fileNum = 1;
     
-    ServerSocket welcomeSocket = new ServerSocket(3456);
+    ServerSocket welcomeSocket = new ServerSocket(9876);
     System.out.println("I am waiting for a connection from Client Side...");
     connectionSocket = welcomeSocket.accept();
     
     inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
     outToClient = new DataOutputStream(connectionSocket.getOutputStream());
     
-    int numTimeRecv = 0;
+    
     System.out.println("I am starting now...");
-    String length;
-    int fileLength = 0;
+   
     File file = new File("c:/Users/Cameryn/Documents/NetBeansProjects/Server/filesOfSentData/testFile1.txt");
+    FileWriter writer = new FileWriter(file);
     
     //Create the file
-    if (file.createNewFile()){
-    System.out.println("File is created!");
-    }else{
-    System.out.println("File already exists.");
+    if (file.createNewFile())
+    {
+        System.out.println("File is created!");
+    }
+    else
+    {
+        System.out.println("File already exists.");
     }
 
-    //Write Content
-    FileWriter writer = new FileWriter(file);
-    /*writer.write("Test data");
-    writer.close()*/
-    
     while(true)
     {
         numTimeRecv++;
@@ -57,30 +64,45 @@ public class TCPServer {
         
         //Get the first line in File that was sent OUT of Client Socket and INTO Server Socket
         clientFile = inFromClient.readLine();
+        
+        //Extract the length of the line
         if(clientFile != null) 
         {
             sizeOfLine = clientFile.length();
         }
-        
-        
-        
-        
+     
+        //Add the length of the line to cumulative count of all lines; this will determine when the whole file has been received
+        //Writes to blank or incomplete file on server side as long as the whole file hasn't already been received from client
         if(countToLength <= fileLength)
         {
             countToLength += sizeOfLine;
-            //writer = new FileWriter(file);
-            System.out.println("Adding to file...");
-            System.out.println("Created file counter before: "+ countToLength);
-            
-            System.out.println("Original file length: "+ fileLength);
+            System.out.println("Adding to file...\n");
             writer.write(clientFile+'\n');
-            //writer.close();
-            System.out.println("Created file counter after: "+ countToLength);
         }
-        else
+        else 
+        //file has been completely received now compare with original file to check error rate
+        //Create new blank file and new writer on server side; Reset cumulative count of lines
         {
             ++newFileNum;
             file = new File("c:/Users/Cameryn/Documents/NetBeansProjects/Server/filesOfSentData/testFile"+newFileNum+".txt");
+            
+            System.out.println("1 whole file transfer complete! \n");
+            Path original = Paths.get("c:/Users/Cameryn/Documents/NetBeansProjects/Server","smallOriginal.txt");
+            Path toTest = Paths.get("c:/Users/Cameryn/Documents/NetBeansProjects/Server/filesOfSentData", "testFile"+ fileNum+".txt");
+            fileNum++;
+            byte[] originalFile = Files.readAllBytes(original);
+            byte[] fileToTest = Files.readAllBytes(toTest);
+            
+            if(Arrays.equals(originalFile, fileToTest))
+            {
+               correctTransfer++; 
+            }
+            else
+            {
+                errorTransfer++;
+                System.out.println("Correct: "+correctTransfer+" Error: "+errorTransfer+"\n");
+            }
+            
             writer.close();
             writer = new FileWriter(file);
             countToLength = 0;
@@ -92,17 +114,18 @@ public class TCPServer {
             break;
         }
         
-       
-        System.out.println("I have received a client file line ("+ numTimeRecv + " times)");
-        //System.out.println("ClientFileLine: "+clientFile);
-        
-        confirmTransferMsg = "I have received file lines"+ numTimeRecv + " times";
-        outToClient.writeBytes(confirmTransferMsg + "\n");
-        
+        try
+        {
+            confirmTransferMsg = "I have received file lines "+ numTimeRecv + " times";
+            outToClient.writeBytes(confirmTransferMsg + "\n");
+        }
+        catch(SocketException e)
+        {
+            e.getMessage();
+        }    
     }
    
     System.out.println("I am done now");
-    //writer.close();
     welcomeSocket.close();
   }
 }
