@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-//import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 public class TCPServer {
   public static void main(String argv[]) throws Exception
@@ -53,6 +53,7 @@ public class TCPServer {
     {
         numTimeRecv++;
         
+        //Get the length of the files that will be received
         if(numTimeRecv == 1)
         {
             length = inFromClient.readLine();
@@ -84,10 +85,11 @@ public class TCPServer {
         //Create new blank file and new writer on server side; Reset cumulative count of lines
         {
             ++newFileNum;
-            file = new File("c:/Users/Cameryn/Documents/NetBeansProjects/Server/filesOfSentData/testFile"+newFileNum+".txt");
+            file = new File("filesOfSentData/testFile"+newFileNum+".txt");
             
             System.out.println("1 whole file transfer complete! \n");
-            Path original = Paths.get("c:/Users/Cameryn/Documents/NetBeansProjects/Server","smallOriginal.txt");
+            
+            /*Path original = Paths.get("c:/Users/Cameryn/Documents/NetBeansProjects/Server","largeOriginal.txt");
             Path toTest = Paths.get("c:/Users/Cameryn/Documents/NetBeansProjects/Server/filesOfSentData", "testFile"+ fileNum+".txt");
             fileNum++;
             byte[] originalFile = Files.readAllBytes(original);
@@ -101,8 +103,21 @@ public class TCPServer {
             {
                 errorTransfer++;
                 System.out.println("Correct: "+correctTransfer+" Error: "+errorTransfer+"\n");
-            }
+            }*/
             
+            File originalFile = new File("largeOriginal.txt");
+            File fileToTest = new File("testFile"+ fileNum+".txt");
+            
+            
+            if(FileUtils.contentEquals(originalFile, fileToTest))
+            {
+                correctTransfer++;
+            }
+            else
+            {
+                errorTransfer++;
+                System.out.println("Correct: "+correctTransfer+" Error: "+errorTransfer+"\n");
+            }
             writer.close();
             writer = new FileWriter(file);
             countToLength = 0;
@@ -114,6 +129,7 @@ public class TCPServer {
             break;
         }
         
+        //MESSAGE TO CLIENT SIDE
         try
         {
             confirmTransferMsg = "I have received file lines "+ numTimeRecv + " times";
