@@ -99,7 +99,7 @@ public class TCPServer {
             {
                correctTransfer++; 
             }
-            else
+            else 
             {
                 errorTransfer++;
                 System.out.println("Correct: "+correctTransfer+" Error: "+errorTransfer+"\n");
